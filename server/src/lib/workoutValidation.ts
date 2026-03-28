@@ -1,4 +1,7 @@
-import type { WorkoutPayload } from "../types/workout.js";
+import {
+  exerciseCategories,
+  type WorkoutPayload
+} from "../types/workout.js";
 
 export interface ValidationResult {
   data?: WorkoutPayload;
@@ -28,6 +31,7 @@ export function validateWorkoutPayload(input: unknown): ValidationResult {
 
   const candidate = input as Record<string, unknown>;
   const date = String(candidate.date ?? "").trim();
+  const category = String(candidate.category ?? "").trim();
   const exerciseName = String(candidate.exerciseName ?? "").trim();
   const sets = parseInteger(candidate.sets);
   const reps = parseInteger(candidate.reps);
@@ -41,6 +45,10 @@ export function validateWorkoutPayload(input: unknown): ValidationResult {
 
   if (exerciseName.length < 2) {
     errors.push("Exercise name must be at least 2 characters.");
+  }
+
+  if (!exerciseCategories.includes(category as (typeof exerciseCategories)[number])) {
+    errors.push("Choose a valid exercise category.");
   }
 
   if (exerciseName.length > 80) {
@@ -70,6 +78,7 @@ export function validateWorkoutPayload(input: unknown): ValidationResult {
   return {
     data: {
       date,
+      category: category as WorkoutPayload["category"],
       exerciseName,
       sets,
       reps,

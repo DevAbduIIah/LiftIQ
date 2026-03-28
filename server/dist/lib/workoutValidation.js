@@ -1,3 +1,4 @@
+import { exerciseCategories } from "../types/workout.js";
 function isValidDate(value) {
     return /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(value));
 }
@@ -17,6 +18,7 @@ export function validateWorkoutPayload(input) {
     }
     const candidate = input;
     const date = String(candidate.date ?? "").trim();
+    const category = String(candidate.category ?? "").trim();
     const exerciseName = String(candidate.exerciseName ?? "").trim();
     const sets = parseInteger(candidate.sets);
     const reps = parseInteger(candidate.reps);
@@ -28,6 +30,9 @@ export function validateWorkoutPayload(input) {
     }
     if (exerciseName.length < 2) {
         errors.push("Exercise name must be at least 2 characters.");
+    }
+    if (!exerciseCategories.includes(category)) {
+        errors.push("Choose a valid exercise category.");
     }
     if (exerciseName.length > 80) {
         errors.push("Exercise name must be 80 characters or fewer.");
@@ -50,6 +55,7 @@ export function validateWorkoutPayload(input) {
     return {
         data: {
             date,
+            category: category,
             exerciseName,
             sets,
             reps,

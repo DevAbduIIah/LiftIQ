@@ -13,6 +13,16 @@ interface UseWorkoutsState {
   error: string | null;
 }
 
+function sortWorkouts(workouts: Workout[]) {
+  return [...workouts].sort((left, right) => {
+    if (left.date !== right.date) {
+      return right.date.localeCompare(left.date);
+    }
+
+    return right.updatedAt.localeCompare(left.updatedAt);
+  });
+}
+
 export function useWorkouts() {
   const [state, setState] = useState<UseWorkoutsState>({
     workouts: [],
@@ -47,10 +57,26 @@ export function useWorkouts() {
 
     setState((current) => ({
       ...current,
-      workouts: [workout, ...current.workouts]
+      workouts: sortWorkouts([workout, ...current.workouts])
     }));
 
     return workout;
+  }, []);
+
+  const createManyEntries = useCallback(async (payloads: WorkoutPayload[]) => {
+    const created: Workout[] = [];
+
+    for (const payload of payloads) {
+      const workout = await createWorkout(payload);
+      created.push(workout);
+    }
+
+    setState((current) => ({
+      ...current,
+      workouts: sortWorkouts([...created, ...current.workouts])
+    }));
+
+    return created;
   }, []);
 
   const updateEntry = useCallback(async (id: string, payload: WorkoutPayload) => {
@@ -58,15 +84,9 @@ export function useWorkouts() {
 
     setState((current) => ({
       ...current,
-      workouts: current.workouts
-        .map((entry) => (entry.id === id ? workout : entry))
-        .sort((left, right) => {
-          if (left.date !== right.date) {
-            return right.date.localeCompare(left.date);
-          }
-
-          return right.updatedAt.localeCompare(left.updatedAt);
-        })
+      workouts: sortWorkouts(
+        current.workouts.map((entry) => (entry.id === id ? workout : entry))
+      )
     }));
 
     return workout;
@@ -85,6 +105,7 @@ export function useWorkouts() {
     ...state,
     reload: loadWorkouts,
     createEntry,
+    createManyEntries,
     updateEntry,
     deleteEntry
   };

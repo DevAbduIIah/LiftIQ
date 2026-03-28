@@ -16,6 +16,7 @@ export function createWorkout(payload) {
     const workout = {
         id: crypto.randomUUID(),
         date: payload.date,
+        category: payload.category,
         exerciseName: payload.exerciseName,
         sets: payload.sets,
         reps: payload.reps,
@@ -33,6 +34,7 @@ export function updateWorkout(id, payload) {
         return null;
     }
     workout.date = payload.date;
+    workout.category = payload.category;
     workout.exerciseName = payload.exerciseName;
     workout.sets = payload.sets;
     workout.reps = payload.reps;

@@ -533,7 +533,9 @@ select {
 .metric-strip,
 .entry-actions,
 .loading-state,
-.alert-banner {
+.alert-banner,
+.history-toolbar,
+.compact-stack {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
@@ -568,6 +570,11 @@ select {
   outline: none;
 }
 
+.field select {
+  appearance: none;
+  color-scheme: light;
+}
+
 .field input:focus,
 .field textarea:focus,
 .field select:focus {
@@ -600,9 +607,46 @@ select {
   cursor: pointer;
 }
 
+.chip-button {
+  white-space: nowrap;
+}
+
 .chip-button:hover,
 .inline-action:hover {
   border-color: rgba(109, 211, 182, 0.45);
+}
+
+.input-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 0 0.95rem;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted);
+}
+
+.input-with-icon input,
+.input-with-icon select {
+  border: 0;
+  background: transparent;
+  padding: 0.9rem 0;
+  color: var(--text);
+  width: 100%;
+  outline: none;
+}
+
+.input-with-icon select {
+  color-scheme: light;
+}
+
+.field select option,
+.field select optgroup,
+.input-with-icon select option,
+.input-with-icon select optgroup {
+  color: #08111f;
+  background: #f5f8ff;
 }
 
 .alert-banner {
@@ -615,6 +659,29 @@ select {
 
 .alert-banner p {
   margin: 0;
+}
+
+.category-callout {
+  padding: 1rem 1.1rem;
+  border-radius: 18px;
+  border: 1px solid rgba(109, 211, 182, 0.18);
+  background: rgba(109, 211, 182, 0.08);
+}
+
+.category-callout h4,
+.coverage-row strong,
+.coverage-row span {
+  margin: 0;
+}
+
+.category-callout h4 {
+  margin-top: 0.35rem;
+  margin-bottom: 0.45rem;
+}
+
+.category-callout p {
+  margin: 0;
+  color: var(--muted);
 }
 
 .loading-state {
@@ -642,6 +709,17 @@ select {
 .workout-notes {
   margin: 0;
   color: var(--muted);
+}
+
+.history-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) repeat(2, minmax(200px, 0.8fr));
+  gap: var(--space-3);
+  align-items: end;
+}
+
+.search-field {
+  min-width: 0;
 }
 
 .metric-strip {
@@ -672,6 +750,10 @@ select {
   flex-wrap: wrap;
 }
 
+.top-space {
+  margin-top: var(--space-3);
+}
+
 .inline-action {
   display: inline-flex;
   align-items: center;
@@ -686,6 +768,17 @@ select {
 
 .spin {
   animation: spin 0.9s linear infinite;
+}
+
+.coverage-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 0.85rem 0.95rem;
+  border-radius: 16px;
+  border: 1px solid rgba(157, 181, 222, 0.12);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 @keyframes spin {
@@ -715,6 +808,10 @@ select {
 
   .workout-summary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .history-toolbar {
+    grid-template-columns: 1fr 1fr;
   }
 }
 
@@ -757,6 +854,10 @@ select {
 
   .field-wide {
     grid-column: span 2;
+  }
+
+  .history-toolbar {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -801,5 +902,10 @@ select {
   .metric-strip,
   .entry-actions {
     flex-direction: column;
+  }
+
+  .input-with-icon {
+    padding-left: 0.85rem;
+    padding-right: 0.85rem;
   }
 }

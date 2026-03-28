@@ -1,6 +1,20 @@
+export const exerciseCategories = [
+  "Chest",
+  "Back",
+  "Legs",
+  "Shoulders",
+  "Arms",
+  "Core",
+  "Full Body",
+  "Conditioning"
+] as const;
+
+export type ExerciseCategory = (typeof exerciseCategories)[number];
+
 export interface Workout {
   id: string;
   date: string;
+  category: ExerciseCategory;
   exerciseName: string;
   sets: number;
   reps: number;
@@ -12,6 +26,7 @@ export interface Workout {
 
 export interface WorkoutPayload {
   date: string;
+  category: ExerciseCategory;
   exerciseName: string;
   sets: number;
   reps: number;
