@@ -1,0 +1,12 @@
+{
+  "name": "liftiq",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "cmd /c npm run client:dev",
+    "client:dev": "cmd /c npm --prefix client run dev",
+    "client:build": "cmd /c npm --prefix client run build",
+    "server:dev": "cmd /c npm --prefix server run dev",
+    "server:build": "cmd /c npm --prefix server run build"
+  }
+}
