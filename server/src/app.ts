@@ -2,6 +2,7 @@ import cors from "cors";
 import express from "express";
 import { config } from "./config.js";
 import { healthRouter } from "./routes/health.js";
+import { workoutsRouter } from "./routes/workouts.js";
 
 export function createApp() {
   const app = express();
@@ -21,6 +22,7 @@ export function createApp() {
   });
 
   app.use("/api/health", healthRouter);
+  app.use("/api/workouts", workoutsRouter);
 
   return app;
 }
