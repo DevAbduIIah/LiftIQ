@@ -518,6 +518,29 @@ select {
   background: rgba(255, 255, 255, 0.04);
 }
 
+.filter-pill-row,
+.chart-summary,
+.chart-footnote,
+.bar-chart-surface {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.time-filter-button {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.75rem 1rem;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+}
+
+.time-filter-button.active {
+  color: var(--text);
+  border-color: rgba(109, 211, 182, 0.4);
+  background: rgba(109, 211, 182, 0.12);
+}
+
 .workout-summary-grid {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
@@ -754,6 +777,97 @@ select {
   margin-top: var(--space-3);
 }
 
+.chart-card {
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, var(--bg-panel), rgba(10, 20, 38, 0.96));
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+.chart-summary {
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}
+
+.chart-summary span,
+.chart-footnote,
+.chart-empty p {
+  color: var(--muted);
+}
+
+.chart-summary strong {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 1.25rem;
+}
+
+.chart-surface,
+.chart-empty {
+  min-height: 13rem;
+  border-radius: 18px;
+  border: 1px solid rgba(157, 181, 222, 0.12);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02)),
+    rgba(255, 255, 255, 0.02);
+}
+
+.chart-surface {
+  padding: var(--space-3);
+}
+
+.chart-empty {
+  display: grid;
+  place-items: center;
+}
+
+.trend-svg {
+  width: 100%;
+  height: 13rem;
+}
+
+.trend-line {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.bar-chart-surface {
+  min-height: 13rem;
+  align-items: flex-end;
+  border-radius: 18px;
+  border: 1px solid rgba(157, 181, 222, 0.12);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02)),
+    rgba(255, 255, 255, 0.02);
+  padding: var(--space-3);
+}
+
+.bar-chart-column {
+  flex: 1;
+  min-height: 13rem;
+  display: flex;
+  align-items: flex-end;
+}
+
+.bar-chart-bar {
+  width: 100%;
+  border-radius: 999px 999px 0 0;
+  background: linear-gradient(180deg, rgba(109, 211, 182, 0.85), rgba(59, 130, 246, 0.45));
+}
+
+.chart-footnote {
+  justify-content: space-between;
+  margin-top: var(--space-2);
+  font-size: 0.92rem;
+}
+
+.compact-card {
+  padding: var(--space-3);
+}
+
 .inline-action {
   display: inline-flex;
   align-items: center;
@@ -859,6 +973,10 @@ select {
   .history-toolbar {
     grid-template-columns: 1fr;
   }
+
+  .filter-pill-row {
+    flex-wrap: wrap;
+  }
 }
 
 @media (max-width: 720px) {
@@ -907,5 +1025,10 @@ select {
   .input-with-icon {
     padding-left: 0.85rem;
     padding-right: 0.85rem;
+  }
+
+  .chart-summary,
+  .chart-footnote {
+    flex-direction: column;
   }
 }

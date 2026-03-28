@@ -641,14 +641,14 @@ export function WorkoutsPage() {
               {draftEntries.map((entry, index) => (
                 <article key={entry.id} className="workout-entry">
                   <div className="workout-entry-header">
-                    <div>
-                      <h4>
-                        {index + 1}. {entry.payload.exerciseName}
-                      </h4>
-                      <p>
-                        {entry.payload.category} · {formatWorkoutDate(entry.payload.date)}
-                      </p>
-                    </div>
+                      <div>
+                        <h4>
+                          {index + 1}. {entry.payload.exerciseName}
+                        </h4>
+                        <p>
+                          {entry.payload.category} | {formatWorkoutDate(entry.payload.date)}
+                        </p>
+                      </div>
                     <span className="meta-pill">
                       {getWorkoutVolume(entry.payload).toLocaleString()} kg volume
                     </span>
@@ -818,7 +818,7 @@ export function WorkoutsPage() {
                   <div>
                     <h4>{workout.exerciseName}</h4>
                     <p>
-                      {formatWorkoutDate(workout.date)} · {workout.category}
+                      {formatWorkoutDate(workout.date)} | {workout.category}
                     </p>
                   </div>
                   <span className="meta-pill">
