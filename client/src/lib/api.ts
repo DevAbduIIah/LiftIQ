@@ -4,6 +4,10 @@ export interface HealthResponse {
   timestamp: string;
 }
 
+import type {
+  NutritionEntry,
+  NutritionEntryPayload
+} from "../types/nutrition";
 import type { Workout, WorkoutPayload } from "../types/workout";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? "";
@@ -59,6 +63,14 @@ interface WorkoutResponse {
   workout: Workout;
 }
 
+interface NutritionEntriesResponse {
+  entries: NutritionEntry[];
+}
+
+interface NutritionEntryResponse {
+  entry: NutritionEntry;
+}
+
 export async function getWorkouts() {
   const response = await request<WorkoutsResponse>("/api/workouts");
   return response.workouts;
@@ -84,6 +96,38 @@ export async function updateWorkout(id: string, payload: WorkoutPayload) {
 
 export function deleteWorkout(id: string) {
   return request<void>(`/api/workouts/${id}`, {
+    method: "DELETE"
+  });
+}
+
+export async function getNutritionEntries() {
+  const response = await request<NutritionEntriesResponse>("/api/nutrition");
+  return response.entries;
+}
+
+export async function createNutritionEntry(payload: NutritionEntryPayload) {
+  const response = await request<NutritionEntryResponse>("/api/nutrition", {
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+
+  return response.entry;
+}
+
+export async function updateNutritionEntry(
+  id: string,
+  payload: NutritionEntryPayload
+) {
+  const response = await request<NutritionEntryResponse>(`/api/nutrition/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(payload)
+  });
+
+  return response.entry;
+}
+
+export function deleteNutritionEntry(id: string) {
+  return request<void>(`/api/nutrition/${id}`, {
     method: "DELETE"
   });
 }
