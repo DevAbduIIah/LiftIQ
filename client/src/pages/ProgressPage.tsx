@@ -9,10 +9,12 @@ import {
   Weight
 } from "lucide-react";
 import { useState } from "react";
+import { CoachingInsightList } from "../components/ui/CoachingInsightList";
 import { Card } from "../components/ui/Card";
 import { EmptyState } from "../components/ui/EmptyState";
 import { PageHeader } from "../components/ui/PageHeader";
 import { TrendChart } from "../components/ui/TrendChart";
+import { buildCoachingSnapshot } from "../lib/coaching";
 import {
   buildProgressAnalytics,
   type ComparisonMetric,
@@ -41,6 +43,7 @@ export function ProgressPage() {
   const { workouts, isLoading, error, reload } = useWorkouts();
   const [timeRange, setTimeRange] = useState<TimeRange>("30d");
   const analytics = buildProgressAnalytics(workouts, timeRange);
+  const coaching = buildCoachingSnapshot(workouts);
 
   return (
     <div className="page-stack">
@@ -155,6 +158,71 @@ export function ProgressPage() {
               valueFormatter={(value) => `${value.toLocaleString()} lifts`}
               variant="bar"
             />
+          </section>
+
+          <section className="content-grid two-columns">
+            <Card
+              title="Coaching guidance"
+              subtitle="The same workout history behind the charts also powers these practical next-step prompts."
+            >
+              <CoachingInsightList
+                insights={coaching.insights}
+                emptyTitle="Coaching is waiting on a little more history."
+                emptyDescription="Keep logging consistently and this area will start surfacing clearer training prompts."
+              />
+            </Card>
+
+            <Card
+              title="Coverage and recovery"
+              subtitle="Use the broader context around the charts to decide what to train next."
+            >
+              <div className="stack-list">
+                <article className="list-item">
+                  <div className="list-item-icon">
+                    <Flame size={18} />
+                  </div>
+                  <div>
+                    <h4>{coaching.readiness.label}</h4>
+                    <p>{coaching.readiness.detail}</p>
+                  </div>
+                  <span className={`stat-tone ${coaching.readiness.tone}`}>Readiness</span>
+                </article>
+                <article className="list-item">
+                  <div className="list-item-icon">
+                    <Repeat size={18} />
+                  </div>
+                  <div>
+                    <h4>Recent muscle-group coverage</h4>
+                    <p>
+                      {coaching.trainedCategories.length > 0
+                        ? coaching.trainedCategories.join(", ")
+                        : "No recent category coverage yet."}
+                    </p>
+                  </div>
+                  <span className="meta-pill">
+                    {coaching.trainedCategories.length}/{Math.max(coaching.trackedCategories.length, 1)}
+                  </span>
+                </article>
+                <article className="list-item">
+                  <div className="list-item-icon">
+                    <CalendarRange size={18} />
+                  </div>
+                  <div>
+                    <h4>Oldest category gap</h4>
+                    <p>
+                      {coaching.missedCategories[0]
+                        ? `${coaching.missedCategories[0].category} has been idle for ${coaching.missedCategories[0].daysSince} day(s).`
+                        : "Every tracked category has shown up in the last 14 days."}
+                    </p>
+                  </div>
+                  <span className="meta-pill">
+                    {coaching.missedCategories[0]
+                      ? coaching.missedCategories[0].lastTrained
+                      : "Balanced"}
+                  </span>
+                </article>
+              </div>
+            </Card>
           </section>
 
           <section className="content-grid two-columns">

@@ -328,12 +328,28 @@ select {
   font-size: 2rem;
 }
 
+.stat-tone.positive,
+.status-pill.positive {
+  color: var(--accent-strong);
+  background: rgba(109, 211, 182, 0.12);
+}
+
 .stat-tone.neutral {
   color: #8bd3ff;
   background: rgba(56, 189, 248, 0.08);
 }
 
+.status-pill.neutral {
+  color: #8bd3ff;
+  background: rgba(56, 189, 248, 0.08);
+}
+
 .stat-tone.attention {
+  color: var(--warning);
+  background: rgba(245, 198, 107, 0.1);
+}
+
+.status-pill.attention {
   color: var(--warning);
   background: rgba(245, 198, 107, 0.1);
 }
@@ -438,6 +454,56 @@ select {
 
 .list-item.compact {
   padding: 0.85rem 1rem;
+}
+
+.coaching-insight {
+  align-items: stretch;
+}
+
+.coaching-insight.attention {
+  border-color: rgba(245, 198, 107, 0.28);
+  background: rgba(245, 198, 107, 0.06);
+}
+
+.coaching-insight.positive {
+  border-color: rgba(109, 211, 182, 0.24);
+  background: rgba(109, 211, 182, 0.07);
+}
+
+.coaching-copy,
+.coaching-heading,
+.coach-summary {
+  display: flex;
+}
+
+.coaching-copy,
+.coach-summary {
+  flex-direction: column;
+  gap: 0.65rem;
+  min-width: 0;
+  width: 100%;
+}
+
+.coaching-heading {
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.coaching-action {
+  color: #dbe9ff;
+}
+
+.coach-summary {
+  padding: 1rem 1.1rem;
+  border-radius: 18px;
+  border: 1px solid rgba(157, 181, 222, 0.16);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.coach-summary p,
+.coaching-action {
+  margin: 0;
 }
 
 .milestone-row,
@@ -1018,7 +1084,8 @@ select {
 
   .workout-entry-header,
   .metric-strip,
-  .entry-actions {
+  .entry-actions,
+  .coaching-heading {
     flex-direction: column;
   }
 

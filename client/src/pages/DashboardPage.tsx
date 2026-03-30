@@ -1,59 +1,102 @@
-import { Activity, ArrowRight, HeartPulse, Sparkles } from "lucide-react";
+import { Activity, CalendarRange, HeartPulse, Trophy } from "lucide-react";
+import { CoachingInsightList } from "../components/ui/CoachingInsightList";
 import { ButtonLink } from "../components/ui/ButtonLink";
 import { Card } from "../components/ui/Card";
 import { EmptyState } from "../components/ui/EmptyState";
 import { PageHeader } from "../components/ui/PageHeader";
 import { StatCard } from "../components/ui/StatCard";
-import {
-  dashboardHighlights,
-  recentActivity,
-  summaryMetrics,
-  upcomingMilestones
-} from "../data/dashboard";
 import { useHealthCheck } from "../hooks/useHealthCheck";
+import { useWorkouts } from "../hooks/useWorkouts";
+import { buildCoachingSnapshot } from "../lib/coaching";
+import { buildProgressAnalytics } from "../lib/progress";
 import { routes } from "../routes";
 
 export function DashboardPage() {
   const { data, error, isLoading } = useHealthCheck();
+  const {
+    workouts,
+    isLoading: workoutsLoading,
+    error: workoutsError,
+    reload
+  } = useWorkouts();
+  const coaching = buildCoachingSnapshot(workouts);
+  const progressSnapshot = buildProgressAnalytics(workouts, "30d");
+  const strongestExercise = progressSnapshot.strongestExercises[0];
+  const latestRecord = progressSnapshot.personalRecords[0];
 
   return (
     <div className="page-stack">
       <PageHeader
         eyebrow="Command center"
-        title="Train with clarity from day one"
-        description="LiftIQ starts with a polished workspace today, then grows into a smarter logging and coaching product across later phases."
-        actions={<ButtonLink to={routes.workouts}>Open workouts</ButtonLink>}
+        title="Training guidance built from your real log"
+        description="LiftIQ now turns workout history into practical next-step coaching, while keeping the dashboard fast to scan and grounded in what you actually tracked."
+        actions={<ButtonLink to={routes.workouts}>Log workout</ButtonLink>}
       />
 
       <section className="stats-grid">
-        {summaryMetrics.map((metric) => (
+        {coaching.summaryMetrics.map((metric) => (
           <StatCard key={metric.label} metric={metric} />
         ))}
       </section>
 
       <section className="dashboard-grid">
         <Card
-          title="Ready for your first session"
-          subtitle="The shell is live, and the workflow is set up for workout tracking next."
+          title="Coaching guidance"
+          subtitle="Rule-based suggestions from your workout history, not vague hype."
           className="hero-card"
         >
-          <EmptyState
-            title="No training data yet"
-            description="Start with workouts when Phase 2 lands, then layer in progress analytics, nutrition, and coaching without rebuilding the foundation."
-            actions={
-              <>
-                <ButtonLink to={routes.workouts}>Explore workouts</ButtonLink>
-                <ButtonLink to={routes.nutrition} variant="secondary">
-                  Preview nutrition
-                </ButtonLink>
-              </>
-            }
-          />
+          {workoutsLoading ? (
+            <div className="loading-state">
+              <HeartPulse size={18} className="spin" />
+              <p>Reading recent training patterns...</p>
+            </div>
+          ) : workoutsError ? (
+            <div className="alert-banner error">
+              <p>{workoutsError}</p>
+              <div className="form-actions">
+                <button
+                  type="button"
+                  className="button-link secondary"
+                  onClick={() => void reload()}
+                >
+                  Retry
+                </button>
+              </div>
+            </div>
+          ) : workouts.length === 0 ? (
+            <EmptyState
+              title="Your first workouts unlock coaching"
+              description="Log a few sessions and LiftIQ will start surfacing overload chances, consistency signals, recovery cues, and missed-category reminders here."
+              actions={
+                <>
+                  <ButtonLink to={routes.workouts}>Start logging</ButtonLink>
+                  <ButtonLink to={routes.progress} variant="secondary">
+                    Preview progress
+                  </ButtonLink>
+                </>
+              }
+            />
+          ) : (
+            <div className="compact-stack">
+              <div className="coach-summary">
+                <span className={`status-pill ${coaching.readiness.tone}`}>
+                  {coaching.readiness.label}
+                </span>
+                <p>{coaching.readiness.detail}</p>
+              </div>
+
+              <CoachingInsightList
+                insights={coaching.insights}
+                emptyTitle="Training is collecting signal."
+                emptyDescription="Keep adding sessions and LiftIQ will turn those patterns into clearer coaching prompts."
+              />
+            </div>
+          )}
         </Card>
 
         <Card
           title="Platform health"
-          subtitle="Backend connectivity is wired into the frontend from the start."
+          subtitle="Backend connectivity stays visible alongside product data."
         >
           <div className="health-card">
             <div className={`health-indicator ${error ? "offline" : "online"}`}>
@@ -63,7 +106,7 @@ export function DashboardPage() {
             <p>
               {data
                 ? `Server timestamp: ${new Date(data.timestamp).toLocaleString()}`
-                : "The dashboard can surface backend status even before feature APIs arrive."}
+                : "The dashboard can surface backend status while training insights stay client-side."}
             </p>
           </div>
         </Card>
@@ -72,11 +115,14 @@ export function DashboardPage() {
       <section className="content-grid">
         <Card
           title="Recent activity"
-          subtitle="A future-ready home for sessions, milestones, and notes."
+          subtitle="Latest logged lifts, ready to anchor coaching and analytics."
         >
           <div className="stack-list">
-            {recentActivity.map((item) => (
-              <article key={item.title} className="list-item">
+            {coaching.recentActivity.map((item, index) => (
+              <article
+                key={`${item.title}-${item.meta ?? ""}-${index}`}
+                className="list-item"
+              >
                 <div className="list-item-icon">
                   <Activity size={18} />
                 </div>
@@ -90,68 +136,135 @@ export function DashboardPage() {
           </div>
         </Card>
 
-        <Card title="Progress snapshots" subtitle="Readable analytics, not clutter.">
-          <div className="highlight-panel">
-            <div className="chart-placeholder">
-              <span>Volume trend</span>
-              <div className="chart-bars">
-                <div style={{ height: "36%" }} />
-                <div style={{ height: "42%" }} />
-                <div style={{ height: "58%" }} />
-                <div style={{ height: "70%" }} />
-                <div style={{ height: "84%" }} />
-              </div>
+        <Card
+          title="Progress snapshot"
+          subtitle="A quick read on what the last 30 days of training are saying."
+        >
+          {workouts.length === 0 ? (
+            <div className="mini-note">
+              <CalendarRange size={18} />
+              <p>
+                Add workouts to unlock strongest lifts, personal records, and volume
+                snapshots here.
+              </p>
             </div>
+          ) : (
+            <div className="stack-list">
+              <article className="list-item">
+                <div className="list-item-icon">
+                  <Trophy size={18} />
+                </div>
+                <div>
+                  <h4>Strongest recent exercise</h4>
+                  <p>
+                    {strongestExercise
+                      ? `${strongestExercise.exerciseName} has led the last 30 days for top-end load and volume.`
+                      : "More history will reveal your strongest movement patterns."}
+                  </p>
+                </div>
+                <span className="meta-pill">
+                  {strongestExercise
+                    ? `${strongestExercise.maxWeight.toLocaleString()} kg`
+                    : "Building"}
+                </span>
+              </article>
+              <article className="list-item">
+                <div className="list-item-icon">
+                  <HeartPulse size={18} />
+                </div>
+                <div>
+                  <h4>Recent personal records</h4>
+                  <p>
+                    {progressSnapshot.personalRecords.length > 0
+                      ? `${progressSnapshot.personalRecords.length} new record(s) landed inside the last 30 days.`
+                      : "No fresh PRs in the current 30-day window yet."}
+                  </p>
+                </div>
+                <span className="meta-pill">
+                  {latestRecord
+                    ? `${latestRecord.exerciseName} +${latestRecord.improvement.toLocaleString()} kg`
+                    : "Stay steady"}
+                </span>
+              </article>
+              <article className="list-item">
+                <div className="list-item-icon">
+                  <CalendarRange size={18} />
+                </div>
+                <div>
+                  <h4>Training rhythm</h4>
+                  <p>
+                    {coaching.weeklyActiveDays} active day(s) this week with{" "}
+                    {Math.round(coaching.monthlyVolume).toLocaleString()} kg moved across the last 30 days.
+                  </p>
+                </div>
+                <span className="meta-pill">
+                  {progressSnapshot.activeDays.toLocaleString()} active day(s)
+                </span>
+              </article>
+            </div>
+          )}
+        </Card>
 
+        <Card
+          title="Coverage and recovery"
+          subtitle="See what has been trained recently and where the next gap is opening."
+        >
+          {workouts.length === 0 ? (
             <div className="mini-note">
               <HeartPulse size={18} />
               <p>
-                Once sessions exist, this area will spotlight momentum,
-                strongest lifts, and consistency at a glance.
+                Muscle-group coverage and recovery timing start showing up after a few
+                logged sessions.
               </p>
             </div>
-          </div>
-        </Card>
-
-        <Card
-          title="What is coming next"
-          subtitle="Phase-by-phase delivery without throwing away earlier work."
-        >
-          <div className="stack-list">
-            {upcomingMilestones.map((item) => (
-              <article key={item.title} className="milestone-row">
-                <div>
-                  <h4>{item.title}</h4>
-                  <p>{item.description}</p>
+          ) : (
+            <div className="compact-stack">
+              <div className="metric-strip">
+                <div className="metric-tile">
+                  <span>Recent groups</span>
+                  <strong>
+                    {coaching.trainedCategories.length > 0
+                      ? coaching.trainedCategories.join(", ")
+                      : "None yet"}
+                  </strong>
                 </div>
-                <span className="meta-pill">{item.meta}</span>
-              </article>
-            ))}
-          </div>
-        </Card>
-      </section>
-
-      <section className="highlight-grid">
-        {dashboardHighlights.map((highlight) => (
-          <Card key={highlight.title}>
-            <p className="section-eyebrow">{highlight.eyebrow}</p>
-            <div className="feature-callout">
-              <div>
-                <h3>{highlight.title}</h3>
-                <p>{highlight.description}</p>
+                <div className="metric-tile">
+                  <span>Next gap</span>
+                  <strong>
+                    {coaching.missedCategories[0]
+                      ? coaching.missedCategories[0].category
+                      : "Balanced"}
+                  </strong>
+                </div>
               </div>
-              <Sparkles size={20} />
-            </div>
-          </Card>
-        ))}
 
-        <Card
-          title="Navigation designed for growth"
-          subtitle="Each page already has a real layout target, not just a placeholder heading."
-        >
-          <ButtonLink to={routes.progress} variant="secondary">
-            View product skeleton <ArrowRight size={16} />
-          </ButtonLink>
+              <div className="compact-stack">
+                {coaching.missedCategories.length === 0 ? (
+                  <div className="mini-note">
+                    <HeartPulse size={18} />
+                    <p>
+                      Every tracked muscle group has shown up in the last 14 days.
+                      Keep rotating the split instead of repeating one lane.
+                    </p>
+                  </div>
+                ) : (
+                  coaching.missedCategories.slice(0, 3).map((entry) => (
+                    <article key={entry.category} className="coverage-row">
+                      <div>
+                        <strong>{entry.category}</strong>
+                        <span>
+                          {entry.sessionCount} total log{entry.sessionCount === 1 ? "" : "s"}
+                        </span>
+                      </div>
+                      <span className="meta-pill">
+                        {entry.daysSince} day{entry.daysSince === 1 ? "" : "s"} ago
+                      </span>
+                    </article>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
         </Card>
       </section>
     </div>
