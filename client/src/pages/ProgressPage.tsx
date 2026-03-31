@@ -12,9 +12,11 @@ import { useState } from "react";
 import { CoachingInsightList } from "../components/ui/CoachingInsightList";
 import { Card } from "../components/ui/Card";
 import { EmptyState } from "../components/ui/EmptyState";
+import { HabitWeekStrip } from "../components/ui/HabitWeekStrip";
 import { PageHeader } from "../components/ui/PageHeader";
 import { TrendChart } from "../components/ui/TrendChart";
 import { buildCoachingSnapshot } from "../lib/coaching";
+import { buildHabitSnapshot } from "../lib/habits";
 import {
   buildProgressAnalytics,
   type ComparisonMetric,
@@ -44,6 +46,7 @@ export function ProgressPage() {
   const [timeRange, setTimeRange] = useState<TimeRange>("30d");
   const analytics = buildProgressAnalytics(workouts, timeRange);
   const coaching = buildCoachingSnapshot(workouts);
+  const habits = buildHabitSnapshot(workouts);
 
   return (
     <div className="page-stack">
@@ -338,57 +341,109 @@ export function ProgressPage() {
             </Card>
 
             <Card
-              title="Consistency indicators"
-              subtitle="Read your training rhythm at a glance without turning the page into a spreadsheet."
+              title="Habit rhythm"
+              subtitle="Weekly target tracking, streaks, and active-day feedback without turning consistency into a cartoon."
             >
-              <div className="stack-list">
-                <article className="list-item">
-                  <div className="list-item-icon">
-                    <Repeat size={18} />
+              <div className="compact-stack">
+                <div className="coach-summary">
+                  <span className={`status-pill ${habits.tone}`}>{habits.statusLabel}</span>
+                  <p>{habits.statusDetail}</p>
+                </div>
+
+                <HabitWeekStrip days={habits.currentWeek.days} />
+
+                <div className="metric-strip">
+                  <div className="metric-tile">
+                    <span>This week</span>
+                    <strong>
+                      {habits.currentWeek.activeDays}/{habits.weeklyTarget} days
+                    </strong>
                   </div>
-                  <div>
-                    <h4>Active weeks</h4>
-                    <p>
-                      {analytics.consistency.activeWeeks} of {analytics.consistency.totalWeeks} weeks had logged work.
-                    </p>
+                  <div className="metric-tile">
+                    <span>Week streak</span>
+                    <strong>{habits.currentWeekTargetStreak} week(s)</strong>
                   </div>
-                  <span className="meta-pill">
-                    {Math.round(
-                      (analytics.consistency.activeWeeks /
-                        Math.max(analytics.consistency.totalWeeks, 1)) *
-                        100
-                    )}
-                    %
-                  </span>
-                </article>
-                <article className="list-item">
-                  <div className="list-item-icon">
-                    <Flame size={18} />
+                  <div className="metric-tile">
+                    <span>Best streak</span>
+                    <strong>{habits.longestWeekTargetStreak} week(s)</strong>
                   </div>
-                  <div>
-                    <h4>Week streak</h4>
-                    <p>
-                      Current streak: {analytics.consistency.currentWeekStreak} | longest streak: {analytics.consistency.longestWeekStreak}
-                    </p>
+                  <div className="metric-tile">
+                    <span>Active days</span>
+                    <strong>{habits.activeDaysLast30} in 30 days</strong>
                   </div>
-                  <span className="meta-pill">Weekly consistency</span>
-                </article>
-                <article className="list-item">
-                  <div className="list-item-icon">
-                    <CalendarRange size={18} />
-                  </div>
-                  <div>
-                    <h4>Last workout gap</h4>
-                    <p>
-                      {analytics.consistency.daysSinceLastWorkout === null
-                        ? "No workout history yet."
-                        : `${analytics.consistency.daysSinceLastWorkout} day(s) since your most recent logged session.`}
-                    </p>
-                  </div>
-                  <span className="meta-pill">
-                    {analytics.consistency.sessionsPerWeek.toLocaleString()} / week
-                  </span>
-                </article>
+                </div>
+
+                <p className="habit-note">{habits.encouragement}</p>
+
+                <div className="compact-stack">
+                  {habits.recentWeeks.map((week) => (
+                    <article key={week.weekStart} className="habit-summary-row">
+                      <div className="habit-summary-copy">
+                        <strong>{week.label}</strong>
+                        <p>{week.statusDetail}</p>
+                      </div>
+                      <div className="habit-progress">
+                        <div
+                          className={`habit-progress-fill ${week.tone}`}
+                          style={{ width: `${week.completionRate}%` }}
+                        />
+                      </div>
+                      <span className="meta-pill">
+                        {week.activeDays}/{habits.weeklyTarget}
+                      </span>
+                    </article>
+                  ))}
+                </div>
+
+                <div className="stack-list">
+                  <article className="list-item compact">
+                    <div className="list-item-icon">
+                      <Repeat size={18} />
+                    </div>
+                    <div>
+                      <h4>Active weeks in range</h4>
+                      <p>
+                        {analytics.consistency.activeWeeks} of {analytics.consistency.totalWeeks} weeks had logged training in the selected window.
+                      </p>
+                    </div>
+                    <span className="meta-pill">
+                      {Math.round(
+                        (analytics.consistency.activeWeeks /
+                          Math.max(analytics.consistency.totalWeeks, 1)) *
+                          100
+                      )}
+                      %
+                    </span>
+                  </article>
+                  <article className="list-item compact">
+                    <div className="list-item-icon">
+                      <Flame size={18} />
+                    </div>
+                    <div>
+                      <h4>Back-to-back active days</h4>
+                      <p>
+                        Current run: {habits.currentActiveDayStreak} day(s) | best run: {habits.longestActiveDayStreak} day(s).
+                      </p>
+                    </div>
+                    <span className="meta-pill">Daily rhythm</span>
+                  </article>
+                  <article className="list-item compact">
+                    <div className="list-item-icon">
+                      <CalendarRange size={18} />
+                    </div>
+                    <div>
+                      <h4>Last workout gap</h4>
+                      <p>
+                        {habits.daysSinceLastWorkout === null
+                          ? "No workout history yet."
+                          : `${habits.daysSinceLastWorkout} day(s) since your most recent logged session.`}
+                      </p>
+                    </div>
+                    <span className="meta-pill">
+                      {analytics.consistency.sessionsPerWeek.toLocaleString()} / week
+                    </span>
+                  </article>
+                </div>
               </div>
             </Card>
           </section>

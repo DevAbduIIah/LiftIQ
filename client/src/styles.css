@@ -962,7 +962,9 @@ select {
 }
 
 .nutrition-progress-row,
-.nutrition-progress-copy {
+.nutrition-progress-copy,
+.habit-summary-row,
+.habit-summary-copy {
   display: flex;
 }
 
@@ -1012,6 +1014,98 @@ select {
 
 .nutrition-target-note {
   min-height: auto;
+}
+
+.habit-week-strip {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+
+.habit-day {
+  padding: 0.85rem 0.75rem;
+  border-radius: 18px;
+  border: 1px solid rgba(157, 181, 222, 0.12);
+  background: rgba(255, 255, 255, 0.03);
+  text-align: center;
+}
+
+.habit-day.active {
+  border-color: rgba(109, 211, 182, 0.32);
+  background: rgba(109, 211, 182, 0.1);
+}
+
+.habit-day.today {
+  box-shadow: inset 0 0 0 1px rgba(139, 211, 255, 0.32);
+}
+
+.habit-day-label,
+.habit-day small,
+.habit-note,
+.habit-summary-copy p {
+  color: var(--muted);
+}
+
+.habit-day-label,
+.habit-day small {
+  display: block;
+}
+
+.habit-day strong {
+  display: block;
+  margin: 0.2rem 0;
+  font-size: 1.05rem;
+}
+
+.habit-note {
+  margin: 0;
+}
+
+.habit-summary-row {
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0.9rem 1rem;
+  border-radius: 18px;
+  border: 1px solid rgba(157, 181, 222, 0.12);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.habit-summary-copy {
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.habit-summary-copy strong,
+.habit-summary-copy p {
+  margin: 0;
+}
+
+.habit-progress {
+  flex: 0 0 8rem;
+  height: 0.6rem;
+  overflow: hidden;
+  border-radius: 999px;
+  border: 1px solid rgba(157, 181, 222, 0.1);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.habit-progress-fill {
+  height: 100%;
+  border-radius: inherit;
+}
+
+.habit-progress-fill.positive {
+  background: linear-gradient(90deg, rgba(109, 211, 182, 0.92), rgba(59, 130, 246, 0.68));
+}
+
+.habit-progress-fill.neutral {
+  background: linear-gradient(90deg, rgba(139, 211, 255, 0.92), rgba(59, 130, 246, 0.56));
+}
+
+.habit-progress-fill.attention {
+  background: linear-gradient(90deg, rgba(245, 198, 107, 0.95), rgba(255, 144, 120, 0.72));
 }
 
 @keyframes spin {
@@ -1139,7 +1233,8 @@ select {
   .metric-strip,
   .entry-actions,
   .coaching-heading,
-  .nutrition-progress-copy {
+  .nutrition-progress-copy,
+  .habit-summary-row {
     flex-direction: column;
   }
 
@@ -1151,5 +1246,14 @@ select {
   .chart-summary,
   .chart-footnote {
     flex-direction: column;
+  }
+
+  .habit-week-strip {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .habit-progress {
+    width: 100%;
+    flex-basis: auto;
   }
 }

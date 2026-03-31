@@ -1,4 +1,5 @@
 import { Activity, CalendarRange, HeartPulse, Trophy } from "lucide-react";
+import { HabitWeekStrip } from "../components/ui/HabitWeekStrip";
 import { CoachingInsightList } from "../components/ui/CoachingInsightList";
 import { ButtonLink } from "../components/ui/ButtonLink";
 import { Card } from "../components/ui/Card";
@@ -8,6 +9,7 @@ import { StatCard } from "../components/ui/StatCard";
 import { useHealthCheck } from "../hooks/useHealthCheck";
 import { useWorkouts } from "../hooks/useWorkouts";
 import { buildCoachingSnapshot } from "../lib/coaching";
+import { buildHabitSnapshot } from "../lib/habits";
 import { buildProgressAnalytics } from "../lib/progress";
 import { routes } from "../routes";
 
@@ -20,9 +22,47 @@ export function DashboardPage() {
     reload
   } = useWorkouts();
   const coaching = buildCoachingSnapshot(workouts);
+  const habits = buildHabitSnapshot(workouts);
   const progressSnapshot = buildProgressAnalytics(workouts, "30d");
   const strongestExercise = progressSnapshot.strongestExercises[0];
   const latestRecord = progressSnapshot.personalRecords[0];
+  const dashboardMetrics = [
+    {
+      label: "This week",
+      value: `${habits.currentWeek.activeDays}/${habits.weeklyTarget} days`,
+      change: habits.statusDetail,
+      tone: habits.tone
+    },
+    {
+      label: "Week streak",
+      value: `${habits.currentWeekTargetStreak} wk`,
+      change:
+        habits.currentWeekTargetStreak > 0
+          ? `${habits.currentWeekTargetStreak} straight week(s) at your consistency baseline`
+          : `Hit ${habits.weeklyTarget} active days to start a week streak`,
+      tone:
+        habits.currentWeekTargetStreak > 0
+          ? "positive"
+          : habits.currentWeek.activeDays > 0
+            ? "neutral"
+            : "attention"
+    },
+    {
+      label: "30-day volume",
+      value: `${Math.round(coaching.monthlyVolume).toLocaleString()} kg`,
+      change:
+        habits.activeDaysLast30 > 0
+          ? `${habits.activeDaysLast30} active day(s) logged across the last 30 days`
+          : "Volume builds as soon as workouts land in the log",
+      tone: coaching.monthlyVolume > 0 ? "positive" : "neutral"
+    },
+    {
+      label: "Readiness",
+      value: coaching.readiness.label,
+      change: coaching.readiness.detail,
+      tone: coaching.readiness.tone
+    }
+  ] as const;
 
   return (
     <div className="page-stack">
@@ -34,7 +74,7 @@ export function DashboardPage() {
       />
 
       <section className="stats-grid">
-        {coaching.summaryMetrics.map((metric) => (
+        {dashboardMetrics.map((metric) => (
           <StatCard key={metric.label} metric={metric} />
         ))}
       </section>
@@ -113,6 +153,59 @@ export function DashboardPage() {
       </section>
 
       <section className="content-grid">
+        <Card
+          title="Consistency rhythm"
+          subtitle="A subtle habit layer built from the same workout log, with a weekly baseline instead of noisy gamification."
+        >
+          <div className="compact-stack">
+            <div className="coach-summary">
+              <span className={`status-pill ${habits.tone}`}>{habits.statusLabel}</span>
+              <p>{habits.statusDetail}</p>
+            </div>
+
+            <HabitWeekStrip days={habits.currentWeek.days} />
+
+            <div className="metric-strip">
+              <div className="metric-tile">
+                <span>This week</span>
+                <strong>
+                  {habits.currentWeek.activeDays}/{habits.weeklyTarget} days
+                </strong>
+              </div>
+              <div className="metric-tile">
+                <span>Week streak</span>
+                <strong>{habits.currentWeekTargetStreak} week(s)</strong>
+              </div>
+              <div className="metric-tile">
+                <span>Best streak</span>
+                <strong>{habits.longestWeekTargetStreak} week(s)</strong>
+              </div>
+            </div>
+
+            <p className="habit-note">{habits.encouragement}</p>
+
+            <div className="compact-stack">
+              {habits.recentWeeks.slice(0, 4).map((week) => (
+                <article key={week.weekStart} className="habit-summary-row">
+                  <div className="habit-summary-copy">
+                    <strong>{week.label}</strong>
+                    <p>{week.statusLabel}</p>
+                  </div>
+                  <div className="habit-progress">
+                    <div
+                      className={`habit-progress-fill ${week.tone}`}
+                      style={{ width: `${week.completionRate}%` }}
+                    />
+                  </div>
+                  <span className="meta-pill">
+                    {week.activeDays}/{habits.weeklyTarget} days
+                  </span>
+                </article>
+              ))}
+            </div>
+          </div>
+        </Card>
+
         <Card
           title="Recent activity"
           subtitle="Latest logged lifts, ready to anchor coaching and analytics."
@@ -193,12 +286,12 @@ export function DashboardPage() {
                 <div>
                   <h4>Training rhythm</h4>
                   <p>
-                    {coaching.weeklyActiveDays} active day(s) this week with{" "}
-                    {Math.round(coaching.monthlyVolume).toLocaleString()} kg moved across the last 30 days.
+                    {habits.currentWeek.activeDays} active day(s) this week and{" "}
+                    {habits.activeDaysLast30} active day(s) across the last 30 days.
                   </p>
                 </div>
                 <span className="meta-pill">
-                  {progressSnapshot.activeDays.toLocaleString()} active day(s)
+                  {habits.currentWeekTargetStreak} week streak
                 </span>
               </article>
             </div>
